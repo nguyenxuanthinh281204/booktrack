@@ -1,17 +1,26 @@
 package com.booktrack;
 
+import com.booktrack.exception.BusinessException;
+import com.booktrack.model.Book;
+import com.booktrack.repository.BookRepository;
+import com.booktrack.repository.InMemoryBookRepository;
+import com.booktrack.service.BookService;
+import com.booktrack.ui.ConsoleMenu;
+
+import java.sql.SQLOutput;
+
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     public static void main(String[] args) {
         //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
         // to see how IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
+        BookRepository bookRepository = new InMemoryBookRepository();
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            System.out.println("i = " + i);
-        }
+        BookService bookService = new BookService(bookRepository);
+
+        ConsoleMenu menu = new ConsoleMenu(bookService);
+
+        menu.start();
     }
 }

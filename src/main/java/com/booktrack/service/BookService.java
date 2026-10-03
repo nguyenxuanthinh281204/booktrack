@@ -20,12 +20,14 @@ public class BookService {
             String author,
             String category
     ){
-        isbn = normalize(isbn);
+        isbn = normalizeIsbn(isbn);
         title = normalize(title);
         author = normalize(author);
         category = normalize(category);
 
         validateNotBlank(isbn, "ISBN");
+        validateIsbn(isbn);
+
         validateNotBlank(title,"Title");
         validateNotBlank(author,"Author");
         validateNotBlank(category, "Category");
@@ -46,6 +48,15 @@ public class BookService {
         return bookRepository.findAll();
     }
 
+    private String normalizeIsbn(String isbn){
+        if(isbn == null){
+            return null;
+        }
+
+        return isbn.trim().replace("-","");
+    }
+
+
     private String normalize(String value){
         if(value == null){
             return null;
@@ -61,5 +72,11 @@ public class BookService {
                     fieldName + " must not be blank."
             );
         }
+    }
+
+    private void validateIsbn(String isbn){
+         if(!isbn.matches("\\d{10}|\\d{13}")){
+             throw new BusinessException("ISBN must contain 10 or 13 digits.");
+         }
     }
 }
