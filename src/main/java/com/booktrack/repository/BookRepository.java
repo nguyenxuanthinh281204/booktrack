@@ -9,9 +9,9 @@ public interface BookRepository {
 
     void save(Book book);
 
-    Optional<Book> findByIsbn(String isbn);
-
     List<Book> findAll();
 
     boolean existsByIsbn(String isbn);
+
+    Book findByIsbn(String isbn);
 }

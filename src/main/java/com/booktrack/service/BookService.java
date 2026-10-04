@@ -79,4 +79,13 @@ public class BookService {
              throw new BusinessException("ISBN must contain 10 or 13 digits.");
          }
     }
+
+    public Book findByIsbn(String isbn){
+        isbn = normalizeIsbn(isbn);
+        if(isbn == null || isbn.isBlank()){
+            throw new BusinessException("Isbn must not be blank.");
+        }
+        return bookRepository.findByIsbn(isbn);
+    }
+
 }

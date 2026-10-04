@@ -4,7 +4,10 @@ import com.booktrack.exception.BusinessException;
 import com.booktrack.model.Book;
 import com.booktrack.repository.BookRepository;
 import com.booktrack.repository.InMemoryBookRepository;
+import com.booktrack.repository.InMemoryMemberRepository;
+import com.booktrack.repository.MemberRepository;
 import com.booktrack.service.BookService;
+import com.booktrack.service.MemberService;
 import com.booktrack.ui.ConsoleMenu;
 
 import java.sql.SQLOutput;
@@ -16,10 +19,12 @@ public class Main {
         //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
         // to see how IntelliJ IDEA suggests fixing it.
         BookRepository bookRepository = new InMemoryBookRepository();
-
         BookService bookService = new BookService(bookRepository);
 
-        ConsoleMenu menu = new ConsoleMenu(bookService);
+        MemberRepository memberRepository = new InMemoryMemberRepository();
+        MemberService memberService = new MemberService(memberRepository);
+
+        ConsoleMenu menu = new ConsoleMenu(bookService,memberService);
 
         menu.start();
     }
