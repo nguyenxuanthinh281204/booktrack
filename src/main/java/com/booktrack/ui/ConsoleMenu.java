@@ -2,8 +2,10 @@ package com.booktrack.ui;
 
 import com.booktrack.exception.BusinessException;
 import com.booktrack.model.Book;
+import com.booktrack.model.Loan;
 import com.booktrack.model.Member;
 import com.booktrack.service.BookService;
+import com.booktrack.service.LoanService;
 import com.booktrack.service.MemberService;
 
 import java.sql.SQLOutput;
@@ -14,11 +16,13 @@ public class ConsoleMenu {
 
     private final BookService bookService;
     private final MemberService memberService;
+    private final LoanService loanService;
     private final Scanner scanner;
 
-    public ConsoleMenu(BookService bookService, MemberService memberService) {
+    public ConsoleMenu(BookService bookService, MemberService memberService, LoanService loanService) {
         this.bookService = bookService;
         this.memberService = memberService;
+        this.loanService = loanService;
         this.scanner = new Scanner(System.in);
     }
 
@@ -36,9 +40,7 @@ public class ConsoleMenu {
 
                 case "2" -> memberMenu();
 
-                case "3" -> {
-                    System.out.println("Loans feature is not implemented yet.");
-                }
+                case "3" -> loanMenu();
 
                 case "4" -> {
                     System.out.println("Reports feature is not implemented yets. ");
@@ -135,6 +137,72 @@ public class ConsoleMenu {
         } catch ( BusinessException e){
             System.out.println(" Rejected: "+ e.getMessage());
         }
+    }
+
+    private void loanMenu(){
+        boolean running = true;
+
+        while (running){
+            System.out.println();
+            System.out.println("=== Loan ===");
+            System.out.println("1. Borrow Book");
+            System.out.println("2. Return Book");
+            System.out.println("3. Back");
+            System.out.print("Choose an option: ");
+
+            String choice = scanner.nextLine().trim();
+
+            switch (choice){
+                case "1" -> borrowBook();
+
+                case "2" -> returnBook();
+
+                case "3" -> running = false;
+
+                default -> System.out.println("Invalid. Try Again");
+            }
+        }
+    }
+
+    private void borrowBook(){
+        System.out.println("");
+        System.out.println("=== Borrow Book");
+        System.out.print("Isbn: ");
+        String isbn = scanner.nextLine();
+
+        System.out.print("Member Code: ");
+        String memberCode = scanner.nextLine();
+
+        try {
+            Loan loan = loanService.borrowBook(isbn, memberCode);
+
+            System.out.println("Books borrowed successfully");
+
+            System.out.println("LoanId "+ loan.getLoanId());
+
+            System.out.println("Borrowed date: "+ loan.getBorrowedDate());
+
+            System.out.println("Due date: "+ loan.getDueDate());
+        } catch(BusinessException e) {
+            System.out.println("Rejected " + e.getMessage());
+        }
+    }
+
+    private void returnBook(){
+
+        System.out.println();
+        System.out.println("=== Return Book ===");
+
+        System.out.print("Loan Id: ");
+        String loanId = scanner.nextLine();
+
+        try {
+            loanService.returnBook(loanId);
+            System.out.println("Book returned successfully");
+        }catch (BusinessException e){
+            System.out.println("Rejected: "+e.getMessage());
+        }
+
     }
 
     private void memberMenu(){
