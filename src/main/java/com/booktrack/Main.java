@@ -6,6 +6,7 @@ import com.booktrack.repository.*;
 import com.booktrack.service.BookService;
 import com.booktrack.service.LoanService;
 import com.booktrack.service.MemberService;
+import com.booktrack.service.ReportService;
 import com.booktrack.ui.ConsoleMenu;
 
 import java.sql.*;
@@ -25,7 +26,9 @@ public class Main {
         LoanRepository loanRepository = new InMemoryLoanRepository();
         LoanService loanService = new LoanService(bookRepository, memberRepository, loanRepository);
 
-        ConsoleMenu menu = new ConsoleMenu(bookService,memberService,loanService);
+        ReportService reportService = new ReportService(bookRepository,memberRepository, loanRepository);
+
+        ConsoleMenu menu = new ConsoleMenu(bookService,memberService,loanService, reportService);
 
         menu.start();
 

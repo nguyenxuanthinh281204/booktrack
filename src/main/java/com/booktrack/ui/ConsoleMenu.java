@@ -1,12 +1,11 @@
 package com.booktrack.ui;
 
 import com.booktrack.exception.BusinessException;
-import com.booktrack.model.Book;
-import com.booktrack.model.Loan;
-import com.booktrack.model.Member;
+import com.booktrack.model.*;
 import com.booktrack.service.BookService;
 import com.booktrack.service.LoanService;
 import com.booktrack.service.MemberService;
+import com.booktrack.service.ReportService;
 
 import java.sql.SQLOutput;
 import java.util.List;
@@ -17,12 +16,14 @@ public class ConsoleMenu {
     private final BookService bookService;
     private final MemberService memberService;
     private final LoanService loanService;
+    private final ReportService reportService;
     private final Scanner scanner;
 
-    public ConsoleMenu(BookService bookService, MemberService memberService, LoanService loanService) {
+    public ConsoleMenu(BookService bookService, MemberService memberService, LoanService loanService, ReportService  reportService) {
         this.bookService = bookService;
         this.memberService = memberService;
         this.loanService = loanService;
+        this.reportService = reportService;
         this.scanner = new Scanner(System.in);
     }
 
@@ -42,9 +43,7 @@ public class ConsoleMenu {
 
                 case "3" -> loanMenu();
 
-                case "4" -> {
-                    System.out.println("Reports feature is not implemented yets. ");
-                }
+                case "4" -> reportMenu();
 
                 case "5" -> {
                     running = false;
@@ -315,6 +314,100 @@ public class ConsoleMenu {
             System.out.println("ISBN: "+book.getIsbn()+" | Title: "+ book.getTitle()+" | Author: "+book.getAuthor()+" | Category: "+ book.getCategory()+" | Status: "+ book.getStatus());
         } catch (BusinessException e){
             System.out.println("Rejected: " + e.getMessage());
+        }
+    }
+
+    private void reportMenu(){
+        boolean running = true;
+
+        while (running){
+            System.out.println();
+            System.out.println("=== Report ===");
+            System.out.println("1. Available Books");
+            System.out.println("2. Open Loans");
+            System.out.println("3. Member Loan History");
+            System.out.println("4. Top 3 Members");
+            System.out.println("5. Back");
+            System.out.print("Choose an option: ");
+
+            String choice = scanner.nextLine().trim();
+
+            switch (choice){
+                case "1" -> showAvalableBooks();
+                case "2" -> showOpenLoans();
+                case "3" -> showMemberLoanHistory();
+                case "4" -> showTopThreeMembers();
+                case "5" -> running =false;
+                default -> System.out.println("Invalid options. Please try again.");
+            }
+        }
+    }
+
+    private void showAvalableBooks(){
+        System.out.println();
+        System.out.println("=== Available Books ===");
+
+        List<Book> books = reportService.getAvailableBooksReport();
+
+        if(books.isEmpty()){
+            System.out.println("No available books.");
+            return;
+        }
+
+        for(Book book:books){
+            System.out.println(book.getTitle() + " | "+book.getIsbn());
+        }
+    }
+
+    private void showOpenLoans(){
+        System.out.println();
+        System.out.println("=== Open Loans ===");
+
+        List<OpenLoanReport> reports = reportService.getOpenLoansReport();
+
+        if(reports.isEmpty()){
+            System.out.println("No open loans.");
+            return;
+        }
+
+        for(OpenLoanReport report : reports){
+            System.out.println(
+                    report.getBookTitle() + " | "+report.getBookIsbn()+" | "+report.getMemberName()+" | "+ report.getMemberCode()+" | Borrowed: "+ report.getBorrowedDate()+ " | Due: "+report.getDueDate()+" | Overdue: "+ report.isOverdue()
+            );
+        }
+    }
+
+    private void showMemberLoanHistory(){
+        System.out.println();
+        System.out.println("=== Member Loan History ===");
+
+        System.out.println("Member Code: ");
+        String memberCode = scanner.nextLine().trim();
+
+        List<Loan> loans = reportService.getLoanHistory(memberCode);
+
+        if(loans.isEmpty()){
+            System.out.println("No loan history found.");
+            return;
+        }
+
+        for (Loan loan : loans){
+            System.out.println("Loan Id: "+loan.getLoanId()+" | Isbn: "+ loan.getBookIsbn()+ " | Borrowed: "+ loan.getBorrowedDate()+ " | Due: "+loan.getDueDate()+" | Returned: "+ loan.getReturnedDate());
+        }
+    }
+
+    private void showTopThreeMembers(){
+        System.out.println();
+        System.out.println("=== Top 3 Members by Total Loans ===");
+        List<MemberLoanRanking> rankings = reportService.getTopThreeMembersByLoans();
+
+        if(rankings.isEmpty()){
+            System.out.println("No members found.");
+            return;
+        }
+
+        for (MemberLoanRanking ranking : rankings){
+            System.out.println(ranking.getMemberCode()+ " | "+ranking.getFullName()+ " | Total Loans: "+ranking.getTotalLoans());
         }
     }
 }
